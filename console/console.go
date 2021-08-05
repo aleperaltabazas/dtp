@@ -1,0 +1,44 @@
+package console
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+)
+
+var Reader = bufio.NewReader(os.Stdin)
+
+func Prompt(s string) string {
+	fmt.Printf("%s: ", s)
+	response, err := Reader.ReadString('\n')
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return strings.TrimSpace(response)
+}
+
+func Confirm(s string) bool {
+	res := Prompt(fmt.Sprintf("%s (y/n) ", s))
+
+	for (res != "y") && res != "n" {
+		fmt.Print("Please, type 'y' or 'n'")
+		res = Prompt(fmt.Sprintf("%s (y/n): ", s))
+	}
+
+	return res == "y"
+}
+
+func GetLine(prefix string) string {
+	fmt.Printf("%s> ", prefix)
+	response, err := Reader.ReadString('\n')
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return strings.TrimSpace(response)
+}
