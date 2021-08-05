@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"dtp/console"
+	"dtp/semaphores"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -18,9 +19,12 @@ func Accept(ownId string, tcpAddr *net.TCPAddr, conn *net.TCPConn, inputChan cha
 		return nil, err
 	}
 
-	fmt.Printf("\n%s identifies themselves as %s, are you ok with this?", address, *clientId)
-
-	if !console.Confirm(fmt.Sprintf("%s identifies themselves as %s, are you ok with this?", address, *clientId)) {
+	fmt.Printf("\n%s identifies themselves as %s, are you ok with this? (y/n): ", address, *clientId)
+	semaphores.RedirectionLock.Lock()
+	semaphores.RedirectInput = true
+	semaphores.RedirectionLock.Unlock()
+	res := <- inputChan
+	if !console.Confirm(res) {
 		fmt.Printf("Closing connection to %s\n", address)
 		conn.Close()
 		return nil, nil

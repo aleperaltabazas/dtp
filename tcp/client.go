@@ -63,7 +63,7 @@ func Connect(id, address string) *DtpRemote {
 		os.Exit(1)
 	}
 
-	if !console.Confirm(fmt.Sprintf("%s identifies themselves as %s, are you ok with this?", address, serverId)) {
+	if !console.PromptConfirmation(fmt.Sprintf("%s identifies themselves as %s, are you ok with this?", address, serverId)) {
 		fmt.Printf("Closing connection to %s\n", address)
 		encoder.Encode("nak")
 		conn.Close()

@@ -21,7 +21,7 @@ func Prompt(s string) string {
 	return strings.TrimSpace(response)
 }
 
-func Confirm(s string) bool {
+func PromptConfirmation(s string) bool {
 	res := Prompt(fmt.Sprintf("%s (y/n) ", s))
 
 	for (res != "y") && res != "n" {
@@ -32,8 +32,18 @@ func Confirm(s string) bool {
 	return res == "y"
 }
 
+func Confirm(s string) bool {
+	if s == "y" {
+		return true
+	} else if s == "n" {
+		return false
+	} else {
+		return Confirm(Prompt("Please, type 'y' or 'n': "))
+	}
+}
+
 func GetLine(prefix string) string {
-	fmt.Printf("%s> ", prefix)
+	fmt.Printf(prefix)
 	response, err := Reader.ReadString('\n')
 
 	if err != nil {

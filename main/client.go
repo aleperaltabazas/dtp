@@ -8,18 +8,24 @@ import (
 	"strings"
 )
 
-func handleInput() {
-	commands := make(chan string)
+func handleCLI() {
 	for {
 		connected := remote != nil
 
-		prefix := ""
-		if remote != nil {
-			prefix = fmt.Sprintf("%s@%s", remote.Id, remote.Address.String())
+		prefix := "> "
+		if connected {
+			prefix = fmt.Sprintf("%s@%s> ", remote.Id, remote.Address.String())
+		}
+		input := console.GetLine(prefix)
+
+		semaphores.RedirectionLock.Lock()
+		if semaphores.RedirectInput {
+			inputChan <- input
+			semaphores.RedirectInput = false
+			semaphores.RedirectionLock.Unlock()
+			continue
 		}
 
-		semaphores.StdinLock.Lock()
-		input := console.GetLine(prefix)
 		words := strings.Split(input, " ")
 
 		switch words[0] {
@@ -32,7 +38,6 @@ func handleInput() {
 			case 2:
 				if !connected {
 					remote = tcp.Connect(id, strings.TrimSpace(words[1]))
-					go handleConnection(remote, commands)
 				} else {
 					fmt.Println("Already have an open connection!")
 				}
@@ -43,21 +48,21 @@ func handleInput() {
 			if !connected {
 				fmt.Println("You are not connected to any remote!")
 			} else {
-				commands <- "stop"
-				connected = false
-				commands = make(chan string)
+				remote.Close()
+				remote = nil
 			}
 		case "ping":
 			if !connected {
 				fmt.Println("You are not connected to any remote!")
 			} else {
+				remote.Send("ping")
 				fmt.Println("Ping")
-				commands <- "ping"
 			}
 		case "exit":
 			if connected {
 				fmt.Println("Disconnecting from remote...")
-				commands <- "stop"
+				remote.Close()
+				remote = nil
 			}
 			fmt.Println("Closing server...")
 			listener.Close()
@@ -65,25 +70,6 @@ func handleInput() {
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}
-		semaphores.StdinLock.Unlock()
-	}
-}
-
-func handleConnection(host *tcp.DtpRemote, commands chan string) {
-	for {
-		command := <-commands
-		switch command {
-		case "stop":
-			{
-				host.Close()
-				break
-			}
-		case "ping":
-			{
-				host.Send("ping")
-			}
-		default:
-			fmt.Printf("Unknown command %s\n", command)
-		}
+		semaphores.RedirectionLock.Unlock()
 	}
 }

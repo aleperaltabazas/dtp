@@ -11,3 +11,6 @@ func Atomically(fn func()) {
 	fn()
 	atomicMutex.Unlock()
 }
+
+var RedirectInput = false
+var RedirectionLock = sync.Mutex{}

@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func startServer(port string, inputChannel chan string) *net.TCPListener {
+func startServer(port string) *net.TCPListener {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", port)
 	if err != nil {
 		println("ResolveTCPAddr failed:", err.Error())
@@ -26,7 +26,7 @@ func startServer(port string, inputChannel chan string) *net.TCPListener {
 	go func() {
 		for {
 			c, err := l.AcceptTCP()
-			host, err := tcp.Accept("falopa", tcpAddr, c, inputChannel)
+			host, err := tcp.Accept("falopa", tcpAddr, c, inputChan)
 			if err != nil {
 				fmt.Println(err)
 				c.Close()

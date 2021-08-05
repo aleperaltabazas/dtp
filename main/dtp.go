@@ -11,6 +11,7 @@ import (
 var remote *tcp.DtpRemote = nil
 var id string
 var listener *net.TCPListener
+var inputChan = make(chan string)
 
 func main() {
 	id = console.Prompt("Please, tell me your id")
@@ -23,7 +24,7 @@ func main() {
 	port := ":" + arguments[1]
 
 	listener = startServer(port)
-	handleInput()
+	handleCLI()
 
 	println("Bye!")
 }
