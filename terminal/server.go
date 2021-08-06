@@ -3,32 +3,41 @@ package dtp
 import (
 	"encoding/gob"
 	"fmt"
-	"github.com/aleperaltabazas/dtp/console"
+	"github.com/aleperaltabazas/dtp/auth"
+	"github.com/aleperaltabazas/dtp/tcp"
 	"net"
 )
 
-func Accept(ownId string, tcpAddr *net.TCPAddr, conn *net.TCPConn) (*Remote, error) {
-	address := conn.RemoteAddr().String()
+func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 	decoder := gob.NewDecoder(conn)
-	clientId := new(string)
+	clientId := new(authenticationRequest)
 	err := decoder.Decode(clientId)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if !console.PromptConfirmation(fmt.Sprintf("%s identifies themselves as %s, are you ok with this? (y/n): ", address, *clientId)) {
-		closeError := conn.Close()
-		if closeError != nil {
-			return nil, closeError
+	if !auth.Authenticate(clientId.Passphrase) {
+		fmt.Println("Authentication failed. Closing connection")
+		sendErr := tcp.Send(conn, authenticationResponse{
+			Code: authenticationError,
+			Id:   nil,
+		})
+		if sendErr != nil {
+			panic(sendErr)
+		}
+		closeErr := conn.Close()
+		if closeErr != nil {
+			panic(closeErr)
 		}
 		return nil, nil
 	}
 
-	fmt.Printf("New client %s acknowledged correctly, presenting myself...\n", *clientId)
+	fmt.Printf("New client %s acknowledged correctly, presenting myself...\n", clientId.Id)
 
+	// TODO: crossed passphrase validation
 	encoder := gob.NewEncoder(conn)
-	err = encoder.Encode(ownId)
+	err = encoder.Encode(authenticationResponse{Code: authenticationOk, Id: &ownId})
 
 	if err != nil {
 		return nil, err
@@ -55,9 +64,8 @@ func Accept(ownId string, tcpAddr *net.TCPAddr, conn *net.TCPConn) (*Remote, err
 	}
 
 	return &Remote{
-		Address: tcpAddr,
 		Socket:  conn,
-		Id:      *clientId,
+		Id:      clientId.Id,
 		encoder: encoder,
 		decoder: decoder,
 	}, nil

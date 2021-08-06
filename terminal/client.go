@@ -2,8 +2,9 @@ package dtp
 
 import (
 	"encoding/gob"
+	"errors"
 	"fmt"
-	"github.com/aleperaltabazas/dtp/console"
+	"github.com/aleperaltabazas/dtp/auth"
 	"net"
 )
 
@@ -41,7 +42,7 @@ func Connect(id, address string) (*Remote, error) {
 	}
 
 	encoder := gob.NewEncoder(conn)
-	err = encoder.Encode(id)
+	err = encoder.Encode(authenticationRequest{Id: id, Passphrase: auth.Passphrase()})
 
 	if err != nil {
 		closeErr := conn.Close()
@@ -52,7 +53,7 @@ func Connect(id, address string) (*Remote, error) {
 	}
 
 	dec := gob.NewDecoder(conn)
-	serverId := new(string)
+	serverId := new(authenticationResponse)
 	err = dec.Decode(&serverId)
 
 	if err != nil {
@@ -63,20 +64,15 @@ func Connect(id, address string) (*Remote, error) {
 		return nil, err
 	}
 
-	if !console.PromptConfirmation(fmt.Sprintf("%s identifies themselves as %s, are you ok with this?", address, *serverId)) {
-		fmt.Printf("Closing connection to %s\n", address)
-		encodeError := encoder.Encode("nak")
-
-		if encodeError != nil {
-			return nil, encodeError
-		}
-
+	if serverId.Code == -1 {
 		closeErr := conn.Close()
 		if closeErr != nil {
 			return nil, closeErr
 		}
-		return nil, nil
+		return nil, errors.New("server rejected authentication")
 	}
+
+	// TODO: crossed passphrase validation
 
 	err = encoder.Encode("ack")
 
@@ -90,9 +86,8 @@ func Connect(id, address string) (*Remote, error) {
 
 	return &Remote{
 		Socket:  conn,
-		Address: tcpAddr,
 		encoder: encoder,
 		decoder: dec,
-		Id:      *serverId,
+		Id:      *serverId.Id,
 	}, nil
 }

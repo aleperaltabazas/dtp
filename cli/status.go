@@ -7,7 +7,7 @@ import (
 
 func Status() {
 	if connection.IsConnected() {
-		fmt.Printf("Connected to %s\n at %s", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address.String())
+		fmt.Printf("Connected to %s\n at %s", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address())
 	} else if connection.AcceptPending() {
 		fmt.Printf("Connection request pending approval from %s\n", connection.AwaitingConnection.RemoteAddr().String())
 	} else {

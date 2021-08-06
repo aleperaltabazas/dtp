@@ -14,7 +14,7 @@ func handleCLI() {
 
 		prefix := "> "
 		if connected {
-			prefix = fmt.Sprintf("%s@%s> ", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address.String())
+			prefix = fmt.Sprintf("%s@%s> ", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address())
 		}
 		input := console.GetLine(prefix)
 

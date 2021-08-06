@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/connection"
-	"github.com/aleperaltabazas/dtp/tcp"
+	dtp "github.com/aleperaltabazas/dtp/terminal"
 	"math/rand"
 	"net"
 	"os"
@@ -27,7 +27,6 @@ func startServer(port string) *net.TCPListener {
 	go func() {
 		for {
 			c, err := l.AcceptTCP()
-
 			if err != nil {
 				fmt.Println(err)
 				closeError := c.Close()
@@ -36,19 +35,16 @@ func startServer(port string) *net.TCPListener {
 				}
 				continue
 			}
-
-			if connection.AwaitingConnection == nil {
-				connection.AwaitingConnection = c
-			} else {
-				err := tcp.Send(c, "busy")
-				if err != nil {
-					fmt.Printf("Failed to reject the client: %s\n", err)
-				}
+			r, err := dtp.Accept(id, c)
+			if err != nil {
+				fmt.Println(err)
 				closeError := c.Close()
 				if closeError != nil {
 					fmt.Printf("Failed to close the socket: %s\n", err.Error())
 				}
+				continue
 			}
+			connection.ConnectedRemote = r
 		}
 	}()
 
