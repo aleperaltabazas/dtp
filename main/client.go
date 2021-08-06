@@ -1,30 +1,22 @@
 package main
 
 import (
+	"dtp/cli"
+	"dtp/connection"
 	"dtp/console"
-	"dtp/semaphores"
-	"dtp/tcp"
 	"fmt"
 	"strings"
 )
 
 func handleCLI() {
 	for {
-		connected := remote != nil
+		connected := connection.ConnectedRemote != nil
 
 		prefix := "> "
 		if connected {
-			prefix = fmt.Sprintf("%s@%s> ", remote.Id, remote.Address.String())
+			prefix = fmt.Sprintf("%s@%s> ", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address.String())
 		}
 		input := console.GetLine(prefix)
-
-		semaphores.RedirectionLock.Lock()
-		if semaphores.RedirectInput {
-			inputChan <- input
-			semaphores.RedirectInput = false
-			semaphores.RedirectionLock.Unlock()
-			continue
-		}
 
 		words := strings.Split(input, " ")
 
@@ -34,42 +26,26 @@ func handleCLI() {
 		case "connect":
 			switch len(words) {
 			case 1:
-				fmt.Println("Missing remote. Usage: connect host:port")
+				fmt.Println("Missing connection. Usage: connect host:port")
 			case 2:
 				if !connected {
-					remote = tcp.Connect(id, strings.TrimSpace(words[1]))
+					cli.Connect(id, words[1])
 				} else {
 					fmt.Println("Already have an open connection!")
 				}
 			default:
 				fmt.Println("Too many arguments. Usage: connect host:port")
 			}
+		case "status":
+			cli.Status()
 		case "disconnect":
-			if !connected {
-				fmt.Println("You are not connected to any remote!")
-			} else {
-				remote.Close()
-				remote = nil
-			}
+			cli.Disconnect()
 		case "ping":
-			if !connected {
-				fmt.Println("You are not connected to any remote!")
-			} else {
-				remote.Send("ping")
-				fmt.Println("Ping")
-			}
+			cli.Ping()
 		case "exit":
-			if connected {
-				fmt.Println("Disconnecting from remote...")
-				remote.Close()
-				remote = nil
-			}
-			fmt.Println("Closing server...")
-			listener.Close()
-			break
+			cli.Exit()
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}
-		semaphores.RedirectionLock.Unlock()
 	}
 }

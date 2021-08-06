@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dtp/connection"
 	"dtp/tcp"
 	"fmt"
 	"math/rand"
@@ -10,7 +11,7 @@ import (
 )
 
 func startServer(port string) *net.TCPListener {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", port)
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", port)
 	if err != nil {
 		println("ResolveTCPAddr failed:", err.Error())
 		os.Exit(1)
@@ -26,44 +27,30 @@ func startServer(port string) *net.TCPListener {
 	go func() {
 		for {
 			c, err := l.AcceptTCP()
-			host, err := tcp.Accept("falopa", tcpAddr, c, inputChan)
+
 			if err != nil {
 				fmt.Println(err)
-				c.Close()
-				break
+				closeError := c.Close()
+				if closeError != nil {
+					fmt.Printf("Failed to close the socket: %s\n", err.Error())
+				}
+				continue
 			}
-			if host == nil {
-				c.Close()
-				break
+
+			if connection.AwaitingConnection == nil {
+				connection.AwaitingConnection = c
+			} else {
+				err := tcp.Send(c, "busy")
+				if err != nil {
+					fmt.Printf("Failed to reject the client: %s\n", err)
+				}
+				closeError := c.Close()
+				if closeError != nil {
+					fmt.Printf("Failed to close the socket: %s\n", err.Error())
+				}
 			}
-			go handle(host)
 		}
 	}()
 
 	return l
-}
-
-func handle(host *tcp.DtpRemote) {
-	fmt.Printf("Serving %s\n", host.Address)
-	for {
-		message := new(string)
-		err := host.Receive(message)
-
-		if err != nil {
-			break
-		}
-
-		fmt.Printf("Received message from %s: %s", host.Id, *message)
-
-		if *message == "STOP" {
-			break
-		} else if *message == "ping" {
-			host.Send("pong")
-		}
-	}
-
-	err := host.Close()
-	if err != nil {
-		fmt.Printf("Failed to close connection with %s\n", host.Id)
-	}
 }
