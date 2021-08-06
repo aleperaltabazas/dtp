@@ -12,8 +12,8 @@ type Remote struct {
 	decoder *gob.Decoder
 }
 
-func (r * Remote) Address() string {
-	return r.Socket.RemoteAddr().String()
+func (r *Remote) Address() string {
+	return r.Socket.LocalAddr().String()
 }
 
 type authenticationRequest struct {
@@ -22,6 +22,7 @@ type authenticationRequest struct {
 }
 
 const (
+	busy                = -100
 	authenticationError = -1
 	authenticationOk    = 1
 )

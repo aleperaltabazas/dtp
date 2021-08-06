@@ -35,16 +35,22 @@ func startServer(port string) *net.TCPListener {
 				}
 				continue
 			}
-			r, err := dtp.Accept(id, c)
-			if err != nil {
-				fmt.Println(err)
-				closeError := c.Close()
-				if closeError != nil {
-					fmt.Printf("Failed to close the socket: %s\n", err.Error())
+			if connection.ConnectedRemote == nil {
+				r, err := dtp.Accept(id, c)
+				if err != nil {
+					fmt.Println(err)
+					closeError := c.Close()
+					if closeError != nil {
+						fmt.Printf("Failed to close the socket: %s\n", err.Error())
+					}
+					continue
 				}
-				continue
+				connection.ConnectedRemote = r
+				fmt.Printf("Connected to %s!\n", r.Id)
+				fmt.Printf("%s@%s> ", r.Id, r.Address())
+			} else {
+				dtp.Reject(c)
 			}
-			connection.ConnectedRemote = r
 		}
 	}()
 

@@ -1,18 +1,17 @@
 package auth
 
 import (
-	bytes2 "bytes"
+	"bytes"
 	"crypto/sha256"
 	"github.com/aleperaltabazas/dtp/config"
 )
 
 func Passphrase() []byte {
 	passphrase := config.Config().GetString("connection.passphrase")
-	// TODO: use a better key to hash the passphrase
-	bytes := sha256.Sum256([]byte(passphrase))
-	return bytes[:]
+	b := sha256.Sum256([]byte(passphrase))
+	return b[:]
 }
 
-func Authenticate(bytes []byte) bool {
-	return bytes2.Compare(bytes, Passphrase()) == 0
+func Authenticate(b []byte) bool {
+	return bytes.Compare(b, Passphrase()) == 0
 }

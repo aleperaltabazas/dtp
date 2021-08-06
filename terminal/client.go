@@ -5,83 +5,94 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
+	"github.com/aleperaltabazas/dtp/protocol"
 	"net"
 )
 
-func (h *Remote) Send(message interface{}) {
-	err := h.encoder.Encode(message)
+func (r *Remote) Send(message interface{}) {
+	err := r.encoder.Encode(message)
 	if err != nil {
-		fmt.Printf("Failed to deliver message to %s\n", h.Id)
+		fmt.Printf("Failed to deliver message to %s\n", r.Id)
 		return
 	}
 }
 
-func (h *Remote) Receive(message interface{}) error {
-	err := h.decoder.Decode(message)
+func (r *Remote) Receive(message interface{}) error {
+	err := r.decoder.Decode(message)
 	if err != nil {
-		fmt.Printf("Failed to receive message from %s", h.Id)
+		fmt.Printf("Failed to receive message from %s", r.Id)
 		return err
 	}
 	return nil
 }
 
-func (h *Remote) Close() error {
-	h.Send("STOP")
-	return h.Socket.Close()
+func (r *Remote) Close() error {
+	r.Send("STOP")
+	return r.Socket.Close()
 }
 
 func Connect(id, address string) (*Remote, error) {
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", address)
-	if err != nil {
-		return nil, err
+	tcpAddr, closeErr := net.ResolveTCPAddr("tcp4", address)
+	if closeErr != nil {
+		return nil, closeErr
 	}
 
-	conn, err := net.DialTCP("tcp4", nil, tcpAddr)
-	if err != nil {
-		return nil, err
+	conn, closeErr := net.DialTCP("tcp4", nil, tcpAddr)
+	if closeErr != nil {
+		return nil, closeErr
 	}
 
 	encoder := gob.NewEncoder(conn)
-	err = encoder.Encode(authenticationRequest{Id: id, Passphrase: auth.Passphrase()})
+	closeErr = encoder.Encode(authenticationRequest{Id: id, Passphrase: auth.Passphrase()})
 
-	if err != nil {
+	if closeErr != nil {
 		closeErr := conn.Close()
 		if closeErr != nil {
 			return nil, closeErr
 		}
-		return nil, err
+		return nil, closeErr
 	}
 
 	dec := gob.NewDecoder(conn)
 	serverId := new(authenticationResponse)
-	err = dec.Decode(&serverId)
+	closeErr = dec.Decode(&serverId)
 
-	if err != nil {
+	if closeErr != nil {
 		closeErr := conn.Close()
 		if closeErr != nil {
 			return nil, closeErr
 		}
-		return nil, err
+		return nil, closeErr
 	}
 
-	if serverId.Code == -1 {
+	switch serverId.Code {
+	case authenticationError:
 		closeErr := conn.Close()
 		if closeErr != nil {
 			return nil, closeErr
 		}
 		return nil, errors.New("server rejected authentication")
+	case busy:
+		closeErr = conn.Close()
+		if closeErr != nil {
+			return nil, closeErr
+		}
+		return nil, errors.New("server busy")
 	}
 
 	// TODO: crossed passphrase validation
 
-	err = encoder.Encode("ack")
+	closeErr = encoder.Encode(protocol.Message{
+		Code: protocol.Ack,
+		Body: nil,
+	})
 
-	if err != nil {
+	if closeErr != nil {
 		closeErr := conn.Close()
 		if closeErr != nil {
 			return nil, closeErr
 		}
-		return nil, err
+		return nil, closeErr
 	}
 
 	return &Remote{

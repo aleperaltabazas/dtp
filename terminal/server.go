@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
+	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/tcp"
 	"net"
 )
@@ -33,7 +34,7 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		return nil, nil
 	}
 
-	fmt.Printf("New client %s acknowledged correctly, presenting myself...\n", clientId.Id)
+	fmt.Printf("\nNew client %s acknowledged correctly, presenting myself...\n", clientId.Id)
 
 	// TODO: crossed passphrase validation
 	encoder := gob.NewEncoder(conn)
@@ -43,7 +44,7 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		return nil, err
 	}
 
-	ack := new(string)
+	ack := new(protocol.Message)
 	err = decoder.Decode(ack)
 
 	if err != nil {
@@ -54,7 +55,7 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		return nil, err
 	}
 
-	if *ack != "ack" {
+	if ack.Code != protocol.Ack {
 		fmt.Printf("%s rejected the connection\n", *clientId)
 		closeError := conn.Close()
 		if closeError != nil {
@@ -69,4 +70,22 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		encoder: encoder,
 		decoder: decoder,
 	}, nil
+}
+
+func Reject(conn *net.TCPConn) {
+	encoder := gob.NewEncoder(conn)
+	err := encoder.Encode(authenticationResponse{
+		Code: busy,
+		Id:   nil,
+	})
+
+	if err != nil {
+		fmt.Printf("Failed to report rejection: %e\n", err)
+	}
+
+	err = conn.Close()
+
+	if err != nil {
+		fmt.Printf("Failed to close socket: %e\n", err)
+	}
 }
