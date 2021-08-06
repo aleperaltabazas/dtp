@@ -1,8 +1,8 @@
 package connection
 
 import (
-	"dtp/terminal"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/terminal"
 	"net"
 )
 

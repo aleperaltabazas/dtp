@@ -1,9 +1,9 @@
 package dtp
 
 import (
-	"dtp/console"
 	"encoding/gob"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/console"
 	"net"
 )
 

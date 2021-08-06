@@ -1,9 +1,9 @@
 package main
 
 import (
-	"dtp/connection"
-	"dtp/tcp"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/connection"
+	"github.com/aleperaltabazas/dtp/tcp"
 	"math/rand"
 	"net"
 	"os"

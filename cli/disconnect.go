@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"dtp/connection"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/connection"
 )
 
 func Disconnect() {

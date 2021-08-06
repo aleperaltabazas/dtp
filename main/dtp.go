@@ -1,9 +1,9 @@
 package main
 
 import (
-	"dtp/console"
-	"dtp/tcp"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/console"
+	"github.com/aleperaltabazas/dtp/tcp"
 	"os"
 )
 

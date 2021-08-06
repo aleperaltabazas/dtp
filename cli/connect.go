@@ -1,9 +1,9 @@
 package cli
 
 import (
-	"dtp/connection"
-	"dtp/terminal"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/connection"
+	"github.com/aleperaltabazas/dtp/terminal"
 )
 
 func Connect(ownId, host string) {

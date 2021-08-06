@@ -1,10 +1,10 @@
 package main
 
 import (
-	"dtp/cli"
-	"dtp/connection"
-	"dtp/console"
 	"fmt"
+	"github.com/aleperaltabazas/dtp/cli"
+	"github.com/aleperaltabazas/dtp/connection"
+	"github.com/aleperaltabazas/dtp/console"
 	"strings"
 )
 
