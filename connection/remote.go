@@ -3,7 +3,6 @@ package connection
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/channels"
-	"github.com/aleperaltabazas/dtp/console"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/terminal"
@@ -38,33 +37,57 @@ func ShowConsolePrompt() {
 	print(prefix)
 }
 
-func Receive(r *dtp.Remote) {
+func Receive() {
 	for {
+		r := ConnectedRemote
+
+		if r == nil {
+			break
+		}
+
 		m, err := r.Receive()
 
 		if err != nil {
 			fmt.Printf("There was an error receiving message from %s: %e\n", r.Address(), err)
-			continue
+			fmt.Println("Closing connection")
+
+			err = r.Socket.Close()
+
+			if err != nil {
+				fmt.Printf("There was an error closing the socket: %e", err)
+			}
+
+			ConnectedRemote = nil
+			break
 		}
 
-		if m.Source != codes.NoSource {
-			channels.Dispatch(m)
-		} else {
-			handleNewMessage(r, m)
+		b := false
+		switch m.Source {
+		//case codes.Fin:
+		//	defer r.Socket.Close()
+		//	ConnectedRemote = nil
+		//	channels.Fin <- *m
+		//	return
+		case codes.NoSource:
+			b = handleNewMessage(r, m)
+		default:
+			b = channels.Dispatch(m)
+		}
+
+		if b {
+			break
 		}
 	}
 }
 
-func handleNewMessage(r *dtp.Remote ,  m * protocol.Message) {
+func handleNewMessage(r *dtp.Remote, m *protocol.Message) bool {
 	switch m.Code {
 	case codes.Ping:
-		err := r.Send(codes.Ping, codes.Ping, nil)
-
-		if err != nil {
-			fmt.Printf("Failed to answer the ping request: %e", err)
-		}
-		console.NewLine()
-		ShowConsolePrompt()
+		Ping(r, m)
+	case codes.Fin:
+		Fin(r, m)
+		return true
 	}
-}
 
+	return false
+}

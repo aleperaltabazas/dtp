@@ -51,7 +51,7 @@ func awaitHandshake(l *net.TCPListener) {
 				continue
 			}
 			connection.ConnectedRemote = r
-			go connection.Receive(r)
+			go connection.Receive()
 			fmt.Printf("Connected to %s!\n", r.Id)
 			fmt.Printf("%s@%s> ", r.Id, r.Address())
 		} else {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
@@ -43,21 +42,9 @@ func (r *Remote) Receive() (*protocol.Message, error) {
 
 	err := r.decoder.Decode(&message)
 	if err != nil {
-		fmt.Printf("Failed to receive message from %s", r.Id)
 		return nil, err
 	}
 	return &message ,nil
-}
-
-func (r *Remote) Close() error {
-	source := codes.NoSource
-	err := r.Send(codes.Fin, source, nil)
-
-	if err != nil {
-		return err
-	}
-
-	return r.Socket.Close()
 }
 
 func Connect(id, address string) (*Remote, error) {
