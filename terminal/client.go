@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/aleperaltabazas/dtp/auth"
+	"github.com/aleperaltabazas/dtp/filesystem"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"net"
@@ -97,9 +98,17 @@ func Connect(id, address string) (*Remote, error) {
 
 	// TODO: crossed passphrase validation
 
+	cwd := filesystem.GetCurrentDirectory()
+
+	j, err := json.Marshal(cwd)
+	if err != nil {
+		return nil, err
+	}
+
 	closeErr = encoder.Encode(protocol.Message{
-		Code: codes.Ack,
-		Body: nil,
+		Code:   codes.Ack,
+		Source: codes.NoSource,
+		Body:   j,
 	})
 
 	if closeErr != nil {
@@ -115,5 +124,6 @@ func Connect(id, address string) (*Remote, error) {
 		encoder: encoder,
 		decoder: dec,
 		Id:      *serverId.Id,
+		Pwd:     *serverId.Pwd,
 	}, nil
 }

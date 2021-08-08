@@ -10,6 +10,6 @@ type Message struct {
 	Body   []byte
 }
 
-func (m * Message) Deserialize(as interface{}) error {
+func (m *Message) Deserialize(as interface{}) error {
 	return json.Unmarshal(m.Body[:], as)
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
+	"github.com/aleperaltabazas/dtp/filesystem"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/tcp"
@@ -39,7 +40,8 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 
 	// TODO: crossed passphrase validation
 	encoder := gob.NewEncoder(conn)
-	err = encoder.Encode(authenticationResponse{Code: authenticationOk, Id: &ownId})
+	pwd := filesystem.GetCurrentDirectory()
+	err = encoder.Encode(authenticationResponse{Code: authenticationOk, Id: &ownId, Pwd: &pwd})
 
 	if err != nil {
 		return nil, err
@@ -65,9 +67,17 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		return nil, nil
 	}
 
+	var remotePwd string
+	err = ack.Deserialize(&remotePwd)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &Remote{
 		Socket:  conn,
 		Id:      clientId.Id,
+		Pwd:     remotePwd,
 		encoder: encoder,
 		decoder: decoder,
 	}, nil

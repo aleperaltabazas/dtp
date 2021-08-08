@@ -43,6 +43,8 @@ func handleCLI() {
 			cli.Exit()
 		case "ls":
 			cli.Ls()
+		case "pwd":
+			cli.Pwd()
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}

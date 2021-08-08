@@ -9,6 +9,7 @@ type Remote struct {
 	Socket    *net.TCPConn
 	Id        string
 	Directory string
+	Pwd       string
 	encoder   *gob.Encoder
 	decoder   *gob.Decoder
 }
@@ -31,4 +32,5 @@ const (
 type authenticationResponse struct {
 	Code int
 	Id   *string
+	Pwd  *string
 }
