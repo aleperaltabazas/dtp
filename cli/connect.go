@@ -15,6 +15,7 @@ func Connect(ownId, host string) {
 
 	if t != nil {
 		connection.ConnectedRemote = t
+		go connection.Receive(t)
 		fmt.Printf("Connected to %s!\n", t.Id)
 	}
 }

@@ -1,33 +1,62 @@
 package dtp
 
 import (
+	"bytes"
 	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
 	"github.com/aleperaltabazas/dtp/protocol"
+	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"net"
 )
 
-func (r *Remote) Send(message interface{}) {
-	err := r.encoder.Encode(message)
-	if err != nil {
-		fmt.Printf("Failed to deliver message to %s\n", r.Id)
-		return
-	}
-}
+func (r *Remote) Send(requestCode string, source string, body interface{}) error {
+	var bs = make([]byte, 0)
 
-func (r *Remote) Receive(message interface{}) error {
-	err := r.decoder.Decode(message)
+	if body != nil {
+		var buf *bytes.Buffer
+		enc := gob.NewEncoder(buf)
+		err := enc.Encode(body)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	request := protocol.Message{
+		Code:   requestCode,
+		Source: source,
+		Body:   bs,
+	}
+
+	err := r.encoder.Encode(request)
 	if err != nil {
-		fmt.Printf("Failed to receive message from %s", r.Id)
 		return err
 	}
+
 	return nil
 }
 
+func (r *Remote) Receive() (*protocol.Message, error) {
+	var message protocol.Message
+
+	err := r.decoder.Decode(&message)
+	if err != nil {
+		fmt.Printf("Failed to receive message from %s", r.Id)
+		return nil, err
+	}
+	return &message ,nil
+}
+
 func (r *Remote) Close() error {
-	r.Send("STOP")
+	source := codes.NoSource
+	err := r.Send(codes.Fin, source, nil)
+
+	if err != nil {
+		return err
+	}
+
 	return r.Socket.Close()
 }
 
@@ -83,7 +112,7 @@ func Connect(id, address string) (*Remote, error) {
 	// TODO: crossed passphrase validation
 
 	closeErr = encoder.Encode(protocol.Message{
-		Code: protocol.Ack,
+		Code: codes.Ack,
 		Body: nil,
 	})
 

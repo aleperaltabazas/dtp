@@ -46,6 +46,7 @@ func startServer(port string) *net.TCPListener {
 					continue
 				}
 				connection.ConnectedRemote = r
+				go connection.Receive(r)
 				fmt.Printf("Connected to %s!\n", r.Id)
 				fmt.Printf("%s@%s> ", r.Id, r.Address())
 			} else {

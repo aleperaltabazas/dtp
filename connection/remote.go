@@ -2,6 +2,9 @@ package connection
 
 import (
 	"fmt"
+	"github.com/aleperaltabazas/dtp/channels"
+	"github.com/aleperaltabazas/dtp/protocol"
+	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/terminal"
 	"net"
 )
@@ -24,3 +27,34 @@ func IsConnected() bool {
 func AcceptPending() bool {
 	return AwaitingConnection != nil
 }
+
+func Receive(r *dtp.Remote) {
+	for {
+		m, err := r.Receive()
+
+		if err != nil {
+			fmt.Printf("There was an error receiving message from %s: %e\n", r.Address(), err)
+			continue
+		}
+
+		fmt.Printf("Received message: %s\n", m.Code)
+
+		if m.Source != codes.NoSource {
+			channels.Dispatch(m)
+		} else {
+			handleNewMessage(r, m)
+		}
+	}
+}
+
+func handleNewMessage(r *dtp.Remote ,  m * protocol.Message) {
+	switch m.Code {
+	case codes.Ping:
+		err := r.Send(codes.Ping, codes.Ping, nil)
+
+		if err != nil {
+			fmt.Printf("Failed to answer the ping request: %e", err)
+		}
+	}
+}
+

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/auth"
 	"github.com/aleperaltabazas/dtp/protocol"
+	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/tcp"
 	"net"
 )
@@ -55,7 +56,7 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 		return nil, err
 	}
 
-	if ack.Code != protocol.Ack {
+	if ack.Code != codes.Ack {
 		fmt.Printf("%s rejected the connection\n", *clientId)
 		closeError := conn.Close()
 		if closeError != nil {
