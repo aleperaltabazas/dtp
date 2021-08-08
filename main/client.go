@@ -12,18 +12,15 @@ func handleCLI() {
 	for {
 		connected := connection.ConnectedRemote != nil
 
-		prefix := "> "
-		if connected {
-			prefix = fmt.Sprintf("%s@%s> ", connection.ConnectedRemote.Id, connection.ConnectedRemote.Address())
-		}
-		input := console.GetLine(prefix)
+		connection.ShowConsolePrompt()
+		input := console.GetLine()
 
 		words := strings.Split(input, " ")
 
 		switch words[0] {
 		case "":
 			continue
-		case "connect":
+		case ":connect":
 			switch len(words) {
 			case 1:
 				fmt.Println("Missing connection. Usage: connect host:port")
@@ -38,11 +35,11 @@ func handleCLI() {
 			}
 		case "status":
 			cli.Status()
-		case "disconnect":
+		case ":disconnect":
 			cli.Disconnect()
-		case "ping":
+		case ":ping":
 			cli.Ping()
-		case "exit":
+		case ":exit":
 			cli.Exit()
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)

@@ -36,8 +36,7 @@ func Confirm(s string) bool {
 	}
 }
 
-func GetLine(prefix string) string {
-	fmt.Printf(prefix)
+func GetLine() string {
 	response, err := Reader.ReadString('\n')
 
 	if err != nil {
@@ -45,4 +44,8 @@ func GetLine(prefix string) string {
 	}
 
 	return strings.TrimSpace(response)
+}
+
+func NewLine() {
+	println("")
 }

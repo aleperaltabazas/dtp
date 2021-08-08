@@ -24,9 +24,24 @@ func startServer(port string) *net.TCPListener {
 	rand.Seed(time.Now().Unix())
 
 	fmt.Printf("Listening in port %s\n", port)
-	go func() {
-		for {
-			c, err := l.AcceptTCP()
+	go awaitHandshake(l)
+
+	return l
+}
+
+func awaitHandshake(l *net.TCPListener) {
+	for {
+		c, err := l.AcceptTCP()
+		if err != nil {
+			fmt.Println(err)
+			closeError := c.Close()
+			if closeError != nil {
+				fmt.Printf("Failed to close the socket: %s\n", err.Error())
+			}
+			continue
+		}
+		if connection.ConnectedRemote == nil {
+			r, err := dtp.Accept(id, c)
 			if err != nil {
 				fmt.Println(err)
 				closeError := c.Close()
@@ -35,25 +50,12 @@ func startServer(port string) *net.TCPListener {
 				}
 				continue
 			}
-			if connection.ConnectedRemote == nil {
-				r, err := dtp.Accept(id, c)
-				if err != nil {
-					fmt.Println(err)
-					closeError := c.Close()
-					if closeError != nil {
-						fmt.Printf("Failed to close the socket: %s\n", err.Error())
-					}
-					continue
-				}
-				connection.ConnectedRemote = r
-				go connection.Receive(r)
-				fmt.Printf("Connected to %s!\n", r.Id)
-				fmt.Printf("%s@%s> ", r.Id, r.Address())
-			} else {
-				dtp.Reject(c)
-			}
+			connection.ConnectedRemote = r
+			go connection.Receive(r)
+			fmt.Printf("Connected to %s!\n", r.Id)
+			fmt.Printf("%s@%s> ", r.Id, r.Address())
+		} else {
+			dtp.Reject(c)
 		}
-	}()
-
-	return l
+	}
 }

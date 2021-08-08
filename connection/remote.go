@@ -3,6 +3,7 @@ package connection
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/channels"
+	"github.com/aleperaltabazas/dtp/console"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/terminal"
@@ -28,6 +29,15 @@ func AcceptPending() bool {
 	return AwaitingConnection != nil
 }
 
+func ShowConsolePrompt() {
+	prefix := "> "
+	if IsConnected() {
+		prefix = fmt.Sprintf("%s@%s> ", ConnectedRemote.Id, ConnectedRemote.Address())
+	}
+
+	print(prefix)
+}
+
 func Receive(r *dtp.Remote) {
 	for {
 		m, err := r.Receive()
@@ -36,8 +46,6 @@ func Receive(r *dtp.Remote) {
 			fmt.Printf("There was an error receiving message from %s: %e\n", r.Address(), err)
 			continue
 		}
-
-		fmt.Printf("Received message: %s\n", m.Code)
 
 		if m.Source != codes.NoSource {
 			channels.Dispatch(m)
@@ -55,6 +63,8 @@ func handleNewMessage(r *dtp.Remote ,  m * protocol.Message) {
 		if err != nil {
 			fmt.Printf("Failed to answer the ping request: %e", err)
 		}
+		console.NewLine()
+		ShowConsolePrompt()
 	}
 }
 
