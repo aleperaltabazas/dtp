@@ -8,7 +8,7 @@ import (
 	dtp "github.com/aleperaltabazas/dtp/terminal"
 )
 
-func Fin(r *dtp.Remote, m *protocol.Message) {
+func fin(r *dtp.Remote, m *protocol.Message) {
 	err := r.Send(codes.Ack, codes.Fin, nil)
 
 	if err != nil {

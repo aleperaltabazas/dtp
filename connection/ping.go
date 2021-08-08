@@ -8,7 +8,7 @@ import (
 	dtp "github.com/aleperaltabazas/dtp/terminal"
 )
 
-func Ping(r *dtp.Remote, m *protocol.Message) {
+func ping(r *dtp.Remote, m *protocol.Message) {
 	err := r.Send(codes.Ping, codes.Ping, nil)
 
 	if err != nil {

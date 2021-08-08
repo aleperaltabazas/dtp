@@ -6,10 +6,11 @@ import (
 )
 
 type Remote struct {
-	Socket  *net.TCPConn
-	Id      string
-	encoder *gob.Encoder
-	decoder *gob.Decoder
+	Socket    *net.TCPConn
+	Id        string
+	Directory string
+	encoder   *gob.Encoder
+	decoder   *gob.Decoder
 }
 
 func (r *Remote) Address() string {

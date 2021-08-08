@@ -8,6 +8,7 @@ import (
 
 var Ping = make(chan protocol.Message)
 var Fin = make(chan protocol.Message)
+var Ls = make(chan protocol.Message)
 
 func Dispatch(m *protocol.Message) bool {
 	switch m.Source {
@@ -16,6 +17,8 @@ func Dispatch(m *protocol.Message) bool {
 	case codes.Fin:
 		Fin <- *m
 		return true
+	case codes.ListDirectory:
+		Ls <- *m
 	default:
 		fmt.Printf("Unexpected source %s\n", m.Source)
 	}

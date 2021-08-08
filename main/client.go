@@ -33,7 +33,7 @@ func handleCLI() {
 			default:
 				fmt.Println("Too many arguments. Usage: connect host:port")
 			}
-		case "status":
+		case ":status":
 			cli.Status()
 		case ":disconnect":
 			cli.Disconnect()
@@ -41,6 +41,8 @@ func handleCLI() {
 			cli.Ping()
 		case ":exit":
 			cli.Exit()
+		case "ls":
+			cli.Ls()
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}

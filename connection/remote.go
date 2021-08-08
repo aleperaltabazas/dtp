@@ -83,11 +83,12 @@ func Receive() {
 func handleNewMessage(r *dtp.Remote, m *protocol.Message) bool {
 	switch m.Code {
 	case codes.Ping:
-		Ping(r, m)
+		ping(r, m)
 	case codes.Fin:
-		Fin(r, m)
+		fin(r, m)
 		return true
+	case codes.ListDirectory:
+		ls(r, m)
 	}
-
 	return false
 }

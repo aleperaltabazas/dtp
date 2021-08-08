@@ -1,8 +1,8 @@
 package dtp
 
 import (
-	"bytes"
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"github.com/aleperaltabazas/dtp/auth"
 	"github.com/aleperaltabazas/dtp/protocol"
@@ -14,13 +14,11 @@ func (r *Remote) Send(requestCode string, source string, body interface{}) error
 	var bs = make([]byte, 0)
 
 	if body != nil {
-		var buf *bytes.Buffer
-		enc := gob.NewEncoder(buf)
-		err := enc.Encode(body)
-
+		j, err := json.Marshal(body)
 		if err != nil {
 			return err
 		}
+		bs = j
 	}
 
 	request := protocol.Message{
@@ -44,7 +42,8 @@ func (r *Remote) Receive() (*protocol.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &message ,nil
+
+	return &message, nil
 }
 
 func Connect(id, address string) (*Remote, error) {

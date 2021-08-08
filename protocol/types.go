@@ -1,8 +1,7 @@
 package protocol
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 )
 
 type Message struct {
@@ -12,8 +11,5 @@ type Message struct {
 }
 
 func (m * Message) Deserialize(as interface{}) error {
-	buf := bytes.NewBuffer(m.Body)
-	dec := gob.NewDecoder(buf)
-
-	return dec.Decode(&as)
+	return json.Unmarshal(m.Body[:], as)
 }
