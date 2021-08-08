@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/connection"
+	"github.com/aleperaltabazas/dtp/global"
 	dtp "github.com/aleperaltabazas/dtp/terminal"
 	"math/rand"
 	"net"
@@ -32,11 +33,21 @@ func startServer(port string) *net.TCPListener {
 func awaitHandshake(l *net.TCPListener) {
 	for {
 		c, err := l.AcceptTCP()
+		global.StopLock.Lock()
+		if global.Stop {
+			global.StopLock.Unlock()
+			return
+		}
+		global.StopLock.Unlock()
+
 		if err != nil {
 			fmt.Println(err)
-			closeError := c.Close()
-			if closeError != nil {
-				fmt.Printf("Failed to close the socket: %s\n", err.Error())
+
+			if c != nil {
+				closeError := c.Close()
+				if closeError != nil {
+					fmt.Printf("Failed to close the socket: %s\n", err.Error())
+				}
 			}
 			continue
 		}
