@@ -13,7 +13,7 @@ func Ls() {
 	if r == nil {
 		fmt.Println("You're not connected to anything!")
 	} else {
-		err := r.Send(codes.ListDirectory, codes.NoSource, nil)
+		err := r.Send(codes.ListDirectory, codes.NoSource, r.Pwd)
 
 		if err != nil {
 			fmt.Printf("Error sending LS request: %e", err)

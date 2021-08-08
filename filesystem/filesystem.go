@@ -29,3 +29,23 @@ func ListDirectory(path string) []string {
 
 	return fs
 }
+
+func DoesDirectoryExist(path string) bool {
+	f, err := os.Stat(path)
+	return !os.IsNotExist(err) && f.IsDir()
+}
+
+func DoesFileExist(path string) bool {
+	f, err := os.Stat(path)
+	return !os.IsNotExist(err) && !f.IsDir()
+}
+
+func MakeAbsolute(path string) string {
+	p, err := filepath.Abs(path)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return p
+}

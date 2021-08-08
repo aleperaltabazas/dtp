@@ -45,6 +45,8 @@ func handleCLI() {
 			cli.Ls()
 		case "pwd":
 			cli.Pwd()
+		case "cd":
+			cli.Cd(words[1:])
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}
