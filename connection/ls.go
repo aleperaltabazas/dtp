@@ -13,7 +13,7 @@ func ls(remote *dtp.Remote, m *protocol.Message) {
 	if len(m.Body) == 0 {
 		path = filesystem.GetCurrentDirectory()
 	} else {
-		m.Deserialize(path)
+		m.Deserialize(&path)
 	}
 
 	files := filesystem.ListDirectory(path)
