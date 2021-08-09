@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/connection"
 	"github.com/aleperaltabazas/dtp/global"
-	"github.com/aleperaltabazas/dtp/tcp"
 	"os"
 )
 
@@ -20,8 +19,8 @@ func Exit() {
 	global.StopLock.Lock()
 	global.Stop = true
 
-	if tcp.Listener != nil {
-		err := tcp.Listener.Close()
+	if global.Listener != nil {
+		err := global.Listener.Close()
 		if err != nil {
 			fmt.Printf("There was an error closing the TCP server: %s\n", err.Error())
 		}

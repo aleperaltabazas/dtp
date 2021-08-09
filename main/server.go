@@ -52,7 +52,7 @@ func awaitHandshake(l *net.TCPListener) {
 			continue
 		}
 		if connection.ConnectedRemote == nil {
-			r, err := dtp.Accept(id, c)
+			r, err := dtp.Accept(global.Id, c)
 			if err != nil {
 				fmt.Println(err)
 				closeError := c.Close()

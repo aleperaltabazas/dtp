@@ -33,7 +33,7 @@ func handleCLI() {
 				fmt.Println("Missing connection. Usage: connect host:port")
 			case 2:
 				if !connected {
-					cli.Connect(id, words[1])
+					cli.Connect(words[1])
 				} else {
 					fmt.Println("Already have an open connection!")
 				}
@@ -46,7 +46,7 @@ func handleCLI() {
 			cli.Disconnect()
 		case ":ping":
 			cli.Ping()
-		case "EOF":
+		case console.EOF:
 			console.NewLine()
 			fallthrough
 		case ":exit":

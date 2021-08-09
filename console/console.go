@@ -41,7 +41,7 @@ func GetLine() string {
 	response, err := Reader.ReadString('\n')
 
 	if err == io.EOF {
-		return "EOF"
+		return EOF
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -53,3 +53,5 @@ func GetLine() string {
 func NewLine() {
 	println("")
 }
+
+const EOF = "EOF"

@@ -3,16 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/console"
+	"github.com/aleperaltabazas/dtp/global"
 	"github.com/aleperaltabazas/dtp/handlers"
-	"github.com/aleperaltabazas/dtp/tcp"
 	"os"
 )
 
-var id string
-
 func main() {
 	handlers.Init()
-	id = console.Prompt("Please, tell me your id: ")
+	askId()
 	arguments := os.Args
 	if len(arguments) < 2 {
 		fmt.Println("Please provide a port number!")
@@ -21,8 +19,23 @@ func main() {
 
 	port := ":" + arguments[1]
 
-	tcp.Listener = startServer(port)
+	global.Listener = startServer(port)
+	console.NewLine()
 	handleCLI()
 
 	println("Bye!")
+}
+
+func askId() {
+	for {
+		id := console.Prompt("Please, tell me your id: ")
+
+		if id == console.EOF {
+			os.Exit(0)
+		}
+		if len(id) > 0 {
+			global.Id = id
+			return
+		}
+	}
 }

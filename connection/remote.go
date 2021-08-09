@@ -3,6 +3,7 @@ package connection
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/channels"
+	"github.com/aleperaltabazas/dtp/global"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
 	"github.com/aleperaltabazas/dtp/terminal"
@@ -29,7 +30,7 @@ func AcceptPending() bool {
 }
 
 func ShowConsolePrompt() {
-	prefix := "> "
+	prefix := fmt.Sprintf("%s> ", global.Id)
 	if IsConnected() {
 		prefix = fmt.Sprintf("%s@%s> ", ConnectedRemote.Id, ConnectedRemote.Address())
 	}
