@@ -51,6 +51,8 @@ func handleCLI() {
 			fallthrough
 		case ":exit":
 			cli.Exit()
+		case ":send":
+			cli.Send(args)
 		case "ls":
 			cli.Ls(args)
 		case "pwd":

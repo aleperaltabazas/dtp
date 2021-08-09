@@ -24,23 +24,27 @@ func Send(args []string) {
 		case 1:
 			filePath := args[0]
 
-			if !filesystem.IsAbsolute(filePath) {
-				filePath = r.FullPath(filePath)
-			}
-
 			if !filesystem.DoesFileExist(filePath) {
 				fmt.Println("send: no such file or directory")
 				return
 			}
 
+			fileName := filePath
+			if !filesystem.IsAbsolute(filePath) {
+				fileName = r.FullPath(filePath)
+			}
+
 			r.Send(codes.Send, codes.NoSource, protocol.SendFile{
-				FileName: filePath,
+				FileName: fileName,
 			})
 			res := <-channels.Send
 
 			switch res.Code {
 			case codes.SendAccepted:
 				doSend(r, filePath)
+			case codes.SendRejected:
+				fmt.Printf("send: rejected: %s\n", string(res.Body))
+				return
 			}
 		default:
 			fmt.Println("send: too many arguments")

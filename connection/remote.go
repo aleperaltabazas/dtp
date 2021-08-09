@@ -92,6 +92,8 @@ func handleNewMessage(r *dtp.Remote, m *protocol.Message) bool {
 		ls(r, m)
 	case codes.ChangeDirectory:
 		cd(r, m)
+	case codes.Send:
+		receiveFile(r, m)
 	default:
 		fmt.Printf("Unexpected request code %s\n", m.Code)
 	}
