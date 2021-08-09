@@ -2,6 +2,7 @@ package dtp
 
 import (
 	"encoding/gob"
+	"fmt"
 	"net"
 )
 
@@ -33,4 +34,8 @@ type authenticationResponse struct {
 	Code int
 	Id   *string
 	Pwd  *string
+}
+
+func (r * Remote) FullPath(path string) string {
+	return fmt.Sprintf("%s/%s", r.Directory, path)
 }

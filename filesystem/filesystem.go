@@ -59,3 +59,7 @@ func MakeAbsolute(path string) string {
 
 	return p
 }
+
+func IsAbsolute(path string) bool {
+	return string(path[0]) == "/"
+}

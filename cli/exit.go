@@ -4,12 +4,22 @@ import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/connection"
 	"github.com/aleperaltabazas/dtp/global"
+	"github.com/aleperaltabazas/dtp/tcp"
 	"os"
 )
 
 func Exit() {
 	if connection.AcceptPending() {
-		Reject()
+		err := tcp.Send(connection.AwaitingConnection, "reject")
+
+		if err != nil {
+			fmt.Printf("There was an error rejecting the connection: %s\n", err.Error())
+		}
+		closeError := connection.AwaitingConnection.Close()
+		if closeError != nil {
+			fmt.Printf("There was an error closing the socket: %s\n", err.Error())
+		}
+		connection.AwaitingConnection = nil
 	}
 
 	if connection.IsConnected() {
