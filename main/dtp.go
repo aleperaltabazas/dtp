@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/console"
+	"github.com/aleperaltabazas/dtp/handlers"
 	"github.com/aleperaltabazas/dtp/tcp"
 	"os"
 )
@@ -10,6 +11,7 @@ import (
 var id string
 
 func main() {
+	handlers.Init()
 	id = console.Prompt("Please, tell me your id: ")
 	arguments := os.Args
 	if len(arguments) < 2 {

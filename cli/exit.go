@@ -19,13 +19,16 @@ func Exit() {
 
 	global.StopLock.Lock()
 	global.Stop = true
-	err := tcp.Listener.Close()
-	global.StopLock.Unlock()
 
-	if err != nil {
-		fmt.Printf("There was an error closing the TCP server: %s\n", err.Error())
+	if tcp.Listener != nil {
+		err := tcp.Listener.Close()
+		if err != nil {
+			fmt.Printf("There was an error closing the TCP server: %s\n", err.Error())
+		}
 	}
+	global.StopLock.Unlock()
 
 	fmt.Println("Bye!")
 	os.Exit(0)
+
 }
