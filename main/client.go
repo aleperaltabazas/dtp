@@ -46,6 +46,9 @@ func handleCLI() {
 			cli.Disconnect()
 		case ":ping":
 			cli.Ping()
+		case "EOF":
+			console.NewLine()
+			fallthrough
 		case ":exit":
 			cli.Exit()
 		case "ls":

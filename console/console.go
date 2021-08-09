@@ -3,6 +3,7 @@ package console
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -39,6 +40,9 @@ func Confirm(s string) bool {
 func GetLine() string {
 	response, err := Reader.ReadString('\n')
 
+	if err == io.EOF {
+		return "EOF"
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
