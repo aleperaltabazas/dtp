@@ -16,7 +16,11 @@ func ls(remote *dtp.Remote, m *protocol.Message) {
 		m.Deserialize(&path)
 	}
 
-	files := filesystem.ListDirectory(path)
+	files, err := filesystem.ListDirectory(path)
 
-	remote.Send(codes.Ack, m.Code, files)
+	if err != nil {
+		remote.Send(codes.Error, m.Code, err.Error())
+	} else {
+		remote.Send(codes.Ack, m.Code, files)
+	}
 }

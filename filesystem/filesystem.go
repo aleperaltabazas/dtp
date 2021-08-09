@@ -1,6 +1,8 @@
 package filesystem
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,7 +18,11 @@ func GetCurrentDirectory() string {
 	return dir
 }
 
-func ListDirectory(path string) []string {
+func ListDirectory(path string) ([]string, error) {
+	if !DoesDirectoryExist(path) {
+		return nil, errors.New(fmt.Sprintf("no such directory: %s", path))
+	}
+
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
@@ -24,10 +30,14 @@ func ListDirectory(path string) []string {
 
 	fs := make([]string, 0)
 	for _, f := range files {
-		fs = append(fs, f.Name())
+		if f.IsDir() {
+			fs = append(fs, fmt.Sprintf("%s/", f.Name()))
+		} else {
+			fs = append(fs, f.Name())
+		}
 	}
 
-	return fs
+	return fs, nil
 }
 
 func DoesDirectoryExist(path string) bool {

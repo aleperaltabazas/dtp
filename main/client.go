@@ -17,7 +17,14 @@ func handleCLI() {
 
 		words := strings.Split(input, " ")
 
-		switch words[0] {
+		if len(words) == 0 {
+			continue
+		}
+
+		command := words[0]
+		args := words[1:]
+
+		switch command {
 		case "":
 			continue
 		case ":connect":
@@ -42,11 +49,11 @@ func handleCLI() {
 		case ":exit":
 			cli.Exit()
 		case "ls":
-			cli.Ls()
+			cli.Ls(args)
 		case "pwd":
 			cli.Pwd()
 		case "cd":
-			cli.Cd(words[1:])
+			cli.Cd(args)
 		default:
 			fmt.Printf("Unkown input '%s'\n", input)
 		}
