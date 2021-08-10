@@ -10,8 +10,12 @@ const (
 	Fin             = "FIN"
 	ListDirectory   = "LS"
 	ChangeDirectory = "CD"
-	Send            = "SEND"
+	SendFile        = "SEND_FILE"
 	FilePart        = "FILE_PART"
 	SendAccepted    = "SEND_ACCEPTED"
 	SendRejected    = "SEND_REJECTED"
+	BringFile       = "BRING_FILE"
+	BringAccepted   = "BRING_ACCEPTED"
+	BringRejected   = "BRING_REJECTED"
+	PartAcknowledged = "PART_ACKNOWLEDGED"
 )

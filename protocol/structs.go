@@ -1,6 +1,6 @@
 package protocol
 
-type SendFile struct {
+type TransferFile struct {
 	FileName string
 }
 

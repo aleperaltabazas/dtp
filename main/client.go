@@ -53,6 +53,8 @@ func handleCLI() {
 			cli.Exit()
 		case ":send":
 			cli.Send(args)
+		case ":bring":
+			cli.Bring(args)
 		case "!cd":
 			cli.CdLocal(args)
 		case "!ls":
