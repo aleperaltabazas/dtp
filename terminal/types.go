@@ -1,7 +1,6 @@
 package dtp
 
 import (
-	"encoding/gob"
 	"fmt"
 	"net"
 )
@@ -10,8 +9,6 @@ type Remote struct {
 	Socket    *net.TCPConn
 	Id        string
 	Pwd       string
-	encoder   *gob.Encoder
-	decoder   *gob.Decoder
 }
 
 func (r *Remote) Address() string {

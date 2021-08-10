@@ -1,13 +1,13 @@
 package dtp
 
 import (
-	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"github.com/aleperaltabazas/dtp/auth"
 	"github.com/aleperaltabazas/dtp/filesystem"
 	"github.com/aleperaltabazas/dtp/protocol"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
+	"github.com/aleperaltabazas/dtp/tcp"
 	"net"
 )
 
@@ -28,7 +28,7 @@ func (r *Remote) Send(requestCode string, source string, body interface{}) error
 		Body:   bs,
 	}
 
-	err := r.encoder.Encode(request)
+	err := tcp.Send(r.Socket, request)
 	if err != nil {
 		return err
 	}
@@ -37,14 +37,14 @@ func (r *Remote) Send(requestCode string, source string, body interface{}) error
 }
 
 func (r *Remote) Receive() (*protocol.Message, error) {
-	var message protocol.Message
+	var m protocol.Message
 
-	err := r.decoder.Decode(&message)
+	err := tcp.Receive(r.Socket, &m)
 	if err != nil {
 		return nil, err
 	}
 
-	return &message, nil
+	return &m, nil
 }
 
 func Connect(id, address string) (*Remote, error) {
@@ -58,8 +58,7 @@ func Connect(id, address string) (*Remote, error) {
 		return nil, closeErr
 	}
 
-	encoder := gob.NewEncoder(conn)
-	closeErr = encoder.Encode(authenticationRequest{Id: id, Passphrase: auth.Passphrase()})
+	closeErr = tcp.Send(conn, authenticationRequest{Id: id, Passphrase: auth.Passphrase()})
 
 	if closeErr != nil {
 		closeErr := conn.Close()
@@ -69,9 +68,8 @@ func Connect(id, address string) (*Remote, error) {
 		return nil, closeErr
 	}
 
-	dec := gob.NewDecoder(conn)
-	serverId := new(authenticationResponse)
-	closeErr = dec.Decode(&serverId)
+	var serverId authenticationResponse
+	closeErr = tcp.Receive(conn, &serverId)
 
 	if closeErr != nil {
 		closeErr := conn.Close()
@@ -105,7 +103,7 @@ func Connect(id, address string) (*Remote, error) {
 		return nil, err
 	}
 
-	closeErr = encoder.Encode(protocol.Message{
+	closeErr = tcp.Send(conn, protocol.Message{
 		Code:   codes.Ack,
 		Source: codes.NoSource,
 		Body:   j,
@@ -120,10 +118,8 @@ func Connect(id, address string) (*Remote, error) {
 	}
 
 	return &Remote{
-		Socket:  conn,
-		encoder: encoder,
-		decoder: dec,
-		Id:      *serverId.Id,
-		Pwd:     *serverId.Pwd,
+		Socket: conn,
+		Id:     *serverId.Id,
+		Pwd:    *serverId.Pwd,
 	}, nil
 }

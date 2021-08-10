@@ -12,9 +12,8 @@ import (
 )
 
 func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
-	decoder := gob.NewDecoder(conn)
 	clientId := new(authenticationRequest)
-	err := decoder.Decode(clientId)
+	err := tcp.Receive(conn, &clientId)
 
 	if err != nil {
 		return nil, err
@@ -39,16 +38,15 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 	fmt.Printf("\nNew client %s acknowledged correctly, presenting myself...\n", clientId.Id)
 
 	// TODO: crossed passphrase validation
-	encoder := gob.NewEncoder(conn)
 	pwd := filesystem.GetCurrentDirectory()
-	err = encoder.Encode(authenticationResponse{Code: authenticationOk, Id: &ownId, Pwd: &pwd})
+	err = tcp.Send(conn, authenticationResponse{Code: authenticationOk, Id: &ownId, Pwd: &pwd})
 
 	if err != nil {
 		return nil, err
 	}
 
 	ack := new(protocol.Message)
-	err = decoder.Decode(ack)
+	err = tcp.Receive(conn, &ack)
 
 	if err != nil {
 		closeError := conn.Close()
@@ -75,11 +73,9 @@ func Accept(ownId string, conn *net.TCPConn) (*Remote, error) {
 	}
 
 	return &Remote{
-		Socket:  conn,
-		Id:      clientId.Id,
-		Pwd:     remotePwd,
-		encoder: encoder,
-		decoder: decoder,
+		Socket: conn,
+		Id:     clientId.Id,
+		Pwd:    remotePwd,
 	}, nil
 }
 
