@@ -12,7 +12,7 @@ var Ls = make(chan protocol.Message)
 var Cd = make(chan protocol.Message)
 var Send = make(chan protocol.Message)
 var FilePartAcknowledged = make(chan protocol.Message)
-var FileParteReceived = make(chan protocol.Message)
+var FilePartReceived = make(chan protocol.Message)
 
 func Dispatch(m *protocol.Message) bool {
 	switch m.Source {
@@ -27,8 +27,10 @@ func Dispatch(m *protocol.Message) bool {
 		Cd <- *m
 	case codes.Send:
 		Send <- *m
+	case codes.FilePart:
+		FilePartAcknowledged <- *m
 	case codes.SendAccepted:
-		FileParteReceived <- *m
+		FilePartReceived <- *m
 	default:
 		fmt.Printf("Unexpected source %s\n", m.Source)
 	}

@@ -5,6 +5,8 @@ import (
 	"github.com/aleperaltabazas/dtp/channels"
 	"github.com/aleperaltabazas/dtp/connection"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
+	"log"
+	"os"
 )
 
 func Cd(args []string) {
@@ -49,5 +51,21 @@ func Cd(args []string) {
 		}
 	} else {
 		fmt.Println("You're not connected to anything!")
+	}
+}
+
+func CdLocal(args []string) {
+	switch len(args) {
+	case 0:
+		home, _ := os.UserHomeDir()
+		os.Chdir(home)
+	case 1:
+		err := os.Chdir(args[0])
+
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+	default:
+		fmt.Println("cd: too many arguments")
 	}
 }

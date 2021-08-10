@@ -53,6 +53,10 @@ func handleCLI() {
 			cli.Exit()
 		case ":send":
 			cli.Send(args)
+		case "!cd":
+			cli.CdLocal(args)
+		case "!ls":
+			cli.LsLocal(args)
 		case "ls":
 			cli.Ls(args)
 		case "pwd":

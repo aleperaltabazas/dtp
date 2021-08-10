@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/aleperaltabazas/dtp/channels"
 	"github.com/aleperaltabazas/dtp/connection"
+	"github.com/aleperaltabazas/dtp/filesystem"
 	"github.com/aleperaltabazas/dtp/protocol/codes"
+	"log"
 )
 
 func Ls(args []string) {
@@ -62,5 +64,28 @@ func Ls(args []string) {
 
 			fmt.Println(errorMessage)
 		}
+	}
+}
+
+func LsLocal(args []string) {
+	var dir string
+	switch len(args) {
+	case 0:
+		dir = filesystem.GetCurrentDirectory()
+	case 1:
+		dir = args[0]
+	default:
+		fmt.Println("ls: too many arguments")
+		return
+	}
+
+	files, err := filesystem.ListDirectory(dir)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		fmt.Println(f)
 	}
 }

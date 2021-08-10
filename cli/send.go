@@ -23,19 +23,15 @@ func Send(args []string) {
 			fmt.Println("send: missing source file")
 		case 1:
 			filePath := args[0]
+			localFileName := filesystem.MakeAbsolute(filePath)
 
-			if !filesystem.DoesFileExist(filePath) {
+			if !filesystem.DoesFileExist(localFileName) {
 				fmt.Println("send: no such file or directory")
 				return
 			}
 
-			fileName := filePath
-			if !filesystem.IsAbsolute(filePath) {
-				fileName = r.FullPath(filePath)
-			}
-
 			r.Send(codes.Send, codes.NoSource, protocol.SendFile{
-				FileName: fileName,
+				FileName: filePath,
 			})
 			res := <-channels.Send
 

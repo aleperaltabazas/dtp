@@ -9,7 +9,6 @@ import (
 type Remote struct {
 	Socket    *net.TCPConn
 	Id        string
-	Directory string
 	Pwd       string
 	encoder   *gob.Encoder
 	decoder   *gob.Decoder
@@ -37,5 +36,5 @@ type authenticationResponse struct {
 }
 
 func (r * Remote) FullPath(path string) string {
-	return fmt.Sprintf("%s/%s", r.Directory, path)
+	return fmt.Sprintf("%s/%s", r.Pwd, path)
 }

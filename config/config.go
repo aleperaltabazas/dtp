@@ -6,7 +6,7 @@ import (
 
 var hoconConfig *hocon.Config = nil
 
-func Config() *hocon.Config {
+func init() {
 	if hoconConfig == nil {
 		conf, err := hocon.ParseResource("config/application.conf")
 		if err != nil {
@@ -14,6 +14,8 @@ func Config() *hocon.Config {
 		}
 		hoconConfig = conf
 	}
+}
 
+func Config() *hocon.Config {
 	return hoconConfig
 }
