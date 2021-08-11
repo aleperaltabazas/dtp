@@ -9,21 +9,27 @@ import (
 )
 
 func main() {
-	handlers.Init()
-	askId()
-	arguments := os.Args
-	if len(arguments) < 2 {
-		fmt.Println("Please provide a port number!")
-		return
+	args := os.Args
+
+	switch args[1] {
+	case "config":
+		configCmd.Parse(args[2:])
+	case "start":
+		handlers.Init()
+		askId()
+		startCmd.Parse(args[2:])
+		port := fmt.Sprintf(":%v", *portOption)
+
+		global.Listener = startServer(port)
+		console.NewLine()
+		handleCLI()
+
+		println("Bye!")
+	default:
+		fmt.Println("Missing: COMMAND\n\nUsage: dtp COMMAND")
+		os.Exit(1)
 	}
 
-	port := ":" + arguments[1]
-
-	global.Listener = startServer(port)
-	console.NewLine()
-	handleCLI()
-
-	println("Bye!")
 }
 
 func askId() {

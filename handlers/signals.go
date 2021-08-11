@@ -15,7 +15,3 @@ func Init() {
 		cli.Exit()
 	}()
 }
-
-func handleCtrlD(){
-
-}
