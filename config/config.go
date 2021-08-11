@@ -1,21 +1,32 @@
 package config
 
 import (
-	"github.com/gurkankaymak/hocon"
+	"github.com/spf13/viper"
 )
 
-var hoconConfig *hocon.Config = nil
-
-func init() {
-	if hoconConfig == nil {
-		conf, err := hocon.ParseResource("config/application.conf")
-		if err != nil {
-			panic(err)
-		}
-		hoconConfig = conf
-	}
+type config struct {
+	Passphrase string
+	CipherKey  string
+	Id *string
 }
 
-func Config() *hocon.Config {
-	return hoconConfig
+var Config config
+
+func init() {
+	viper.AddConfigPath("$HOME/.config")
+	viper.SetConfigName("dtp")
+	viper.SetConfigType("yaml")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	passphrase := viper.GetString("passphrase")
+	cipherKey := viper.GetString("cipher-key")
+
+	Config = config{
+		Passphrase: passphrase,
+		CipherKey:  cipherKey,
+	}
 }

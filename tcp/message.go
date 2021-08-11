@@ -15,7 +15,7 @@ import (
 var cip cipher.Block
 
 func init() {
-	key := config.Config().GetString("connection.cipher.key")
+	key := config.Config.CipherKey
 	c, err := aes.NewCipher([]byte(key))
 
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 )
 
 func Passphrase() []byte {
-	passphrase := config.Config().GetString("connection.passphrase")
+	passphrase := config.Config.Passphrase
 	b := sha256.Sum256([]byte(passphrase))
 	return b[:]
 }
